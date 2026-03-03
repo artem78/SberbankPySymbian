@@ -7,6 +7,8 @@
 
 import messaging, appuifw, os.path, contacts
 
+PROG_VERSION = u'1.0'
+
 def is_debug():
     return os.path.exists("c:/sber.dbg")
 
@@ -70,13 +72,19 @@ def transfer_to_card_by_phonenumber():
 
     appuifw.note(u'Подтвердите действие через SMS')
     
+def show_about_dlg():
+    msg = u'sberbank.py v' + PROG_VERSION + u'\r\n'\
+        + u'Минималистичный клиент Сбербанка для symbian на питоне'
+    appuifw.note(msg)
+    
 
 appuifw.app.title = u'Сбербанк'
 if is_debug():
     appuifw.app.title += u' [TEST MODE]'
     
 choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
-           u'Перевести деньги на карту по номеру телефона', u'Выход']
+           u'Перевести деньги на карту по номеру телефона', u'О программе',
+           u'Выход']
 index = appuifw.selection_list(choices)
 if index==0:
     balans()
@@ -87,5 +95,7 @@ elif index==2:
 elif index==3:
     transfer_to_card_by_phonenumber()
 elif index==4:
+    show_about_dlg()
+elif index==5:
     pass
 
