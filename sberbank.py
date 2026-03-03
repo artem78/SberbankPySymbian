@@ -82,20 +82,21 @@ appuifw.app.title = u'Сбербанк'
 if is_debug():
     appuifw.app.title += u' [TEST MODE]'
     
-choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
-           u'Перевести деньги на карту по номеру телефона', u'О программе',
-           u'Выход']
-index = appuifw.selection_list(choices)
-if index==0:
-    balans()
-elif index==1:
-    last_ops()
-elif index==2:
-    tel_pay()
-elif index==3:
-    transfer_to_card_by_phonenumber()
-elif index==4:
-    show_about_dlg()
-elif index==5:
-    pass
+while True:
+    choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
+               u'Перевести деньги на карту по номеру телефона', u'О программе',
+               u'Выход']
+    index = appuifw.selection_list(choices)
+    if index==0:
+        balans()
+    elif index==1:
+        last_ops()
+    elif index==2:
+        tel_pay()
+    elif index==3:
+        transfer_to_card_by_phonenumber()
+    elif index==4:
+        show_about_dlg()
+    elif index==5:
+        break
 
