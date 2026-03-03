@@ -76,7 +76,7 @@ if is_debug():
     appuifw.app.title += u' [TEST MODE]'
     
 choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
-           u'Перевести деньги на карту по номеру телефона']
+           u'Перевести деньги на карту по номеру телефона', u'Выход']
 index = appuifw.selection_list(choices)
 if index==0:
     balans()
@@ -86,4 +86,6 @@ elif index==2:
     tel_pay()
 elif index==3:
     transfer_to_card_by_phonenumber()
+elif index==4:
+    pass
 
