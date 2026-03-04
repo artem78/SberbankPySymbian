@@ -14,7 +14,7 @@
 
 import messaging, appuifw, os.path, contacts
 
-PROG_VERSION = u'1.0'
+PROG_VERSION = u'1.1'
 
 def is_debug():
     return os.path.exists("c:/sber.dbg")
