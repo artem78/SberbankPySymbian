@@ -81,6 +81,22 @@ def transfer_to_card_by_phonenumber():
 
     appuifw.note(u'Подтвердите действие через SMS')
     
+def transfer_to_card():
+    card = appuifw.query(u'Номер карты получателя:', 'text')
+    if card is None:
+        return
+    if not card.isdigit() or len(card) < 16 or len(card) > 18:
+        appuifw.note(u'Номер карты должен содержать 16-18 цифр!', 'error')
+        return
+    
+    sum = appuifw.query(u'Сумма в руб.:', 'number')
+    if sum is None or sum < 1:
+        return
+    
+    send_message(u"PEREVOD %s %d" % (card, sum))
+
+    appuifw.note(u'Подтвердите действие через SMS')
+    
 def show_about_dlg():
     msg = u'sberbank.py v' + PROG_VERSION + u'\r\n'\
         + u'Минималистичный клиент Сбербанка для symbian на питоне'
@@ -93,7 +109,8 @@ if is_debug():
     
 while True:
     choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
-               u'Перевести деньги на карту по номеру телефона', u'О программе',
+               u'Перевод на карту',
+               u'Перевод на карту по номеру телефона', u'О программе',
                u'Выход']
     index = appuifw.selection_list(choices)
     if index==0:
@@ -103,8 +120,10 @@ while True:
     elif index==2:
         tel_pay()
     elif index==3:
-        transfer_to_card_by_phonenumber()
+        transfer_to_card()
     elif index==4:
-        show_about_dlg()
+        transfer_to_card_by_phonenumber()
     elif index==5:
+        show_about_dlg()
+    elif index==6:
         break
