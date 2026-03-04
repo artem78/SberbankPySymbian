@@ -125,5 +125,5 @@ while True:
         transfer_to_card_by_phonenumber()
     elif index==5:
         show_about_dlg()
-    elif index==6:
+    elif index==6 or index==None:
         break
