@@ -85,9 +85,11 @@ def transfer_to_card():
     card = appuifw.query(u'Номер карты получателя:', 'text')
     if card is None:
         return
-    if not card.isdigit() or len(card) < 16 or len(card) > 18:
-        appuifw.note(u'Номер карты должен содержать 16-18 цифр!', 'error')
-        return
+    else:
+        card = card.replace(' ','') # очистка номера карты от возможных пробелов
+        if not card.isdigit() or len(card) < 16 or len(card) > 18:
+            appuifw.note(u'Номер карты должен содержать 16-18 цифр!', 'error')
+            return
     
     sum = appuifw.query(u'Сумма в руб.:', 'number')
     if sum is None or sum < 1:
