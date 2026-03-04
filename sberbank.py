@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
 # документация:
-#      pys60: https://mobilenin.com/pys60/resources/PythonForS60_1_4_1_doc.pdf
-#      api сбербанка: s.sber.ru/7wZSW
-#           https://www.sberbank.ru/common/img/uploaded/files/pdf/mob_ruk2.pdf
+#      python 2.5.4:
+#             https://docs.python.org/release/2.5.4/
+#
+#      pys60:
+#             https://mobilenin.com/pys60/resources/PythonForS60_1_4_1_doc.pdf
+#             https://web.archive.org/web/20150927094303/https://garage.maemo.org/frs/download.php/7490/PyS60_2_0_documentation.pdf
+#
+#      api сбербанка:
+#             s.sber.ru/7wZSW
+#             https://www.sberbank.ru/common/img/uploaded/files/pdf/mob_ruk2.pdf
 
 import messaging, appuifw, os.path, contacts
 
