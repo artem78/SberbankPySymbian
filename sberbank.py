@@ -101,8 +101,10 @@ def transfer_to_card():
     
 def show_about_dlg():
     msg = u'sberbank.py v' + PROG_VERSION + u'\r\n'\
-        + u'Минималистичный клиент Сбербанка для symbian на питоне'
-    appuifw.note(msg)
+        + u'Минималистичный клиент Сбербанка для symbian на питоне\r\n'\
+        + u'github.com/artem78/SberbankPySymbian'
+    #appuifw.note(msg)
+    appuifw.query(msg, 'query')
     
 def donate():
     msg = u'Программа оказалась полезной? '\
