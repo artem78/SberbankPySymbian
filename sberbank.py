@@ -29,6 +29,7 @@ def send_message(msg):
 
 def balans():
     send_message(u"BALANS")
+    appuifw.note(u'Ожидайте ответа в SMS')
     
 def last_ops():
     last_card_digits = appuifw.query(u'Последние 4 цифры номера карты:', 'number')
@@ -36,6 +37,7 @@ def last_ops():
         return
     
     send_message(u"История " + ("%04d" % (last_card_digits,)))
+    appuifw.note(u'Ожидайте ответа в SMS')
     
 def tel_pay():
     sum = appuifw.query(u'Сумма в руб.:', 'number')
@@ -99,4 +101,3 @@ while True:
         show_about_dlg()
     elif index==5:
         break
-
