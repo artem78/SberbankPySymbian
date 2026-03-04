@@ -32,7 +32,7 @@ def send_message(msg):
     if not is_debug():
         messaging.sms_send("900",msg)
     else:
-        appuifw.note(msg)
+        appuifw.note('>> ' + msg)
 
 def balans():
     send_message(u"BALANS")
