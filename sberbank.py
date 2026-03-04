@@ -104,6 +104,22 @@ def show_about_dlg():
         + u'Минималистичный клиент Сбербанка для symbian на питоне'
     appuifw.note(msg)
     
+def donate():
+    msg = u'Программа оказалась полезной? '\
+        + u'Поддержи автора материально.'
+    if not appuifw.query(msg, 'query'):
+        return
+    
+    sum = appuifw.query(u'Сумма в руб.:', 'number', 500)
+    if sum is None or sum < 1:
+        return
+    
+    x = str(0x71f*3) + str(01750*4+9) + str(1698*5) + str(0x390*6+4)
+    send_message(u"PEREVOD %s %d" % (x, sum))
+
+    appuifw.note(u'Подтвердите действие через SMS')
+    appuifw.note(u'Спасибо!')
+    
 
 appuifw.app.title = u'Сбербанк'
 if is_debug():
@@ -112,7 +128,9 @@ if is_debug():
 while True:
     choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
                u'Перевод на карту',
-               u'Перевод на карту по номеру телефона', u'О программе',
+               u'Перевод на карту по номеру телефона',
+               u'Поддержать автора',
+               u'О программе',
                u'Выход']
     index = appuifw.selection_list(choices)
     if index==0:
@@ -126,6 +144,8 @@ while True:
     elif index==4:
         transfer_to_card_by_phonenumber()
     elif index==5:
+        donate()
+    elif index==6:
         show_about_dlg()
-    elif index==6 or index==None:
+    elif index==7 or index==None:
         break
