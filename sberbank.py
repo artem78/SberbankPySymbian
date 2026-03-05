@@ -46,12 +46,40 @@ def last_ops():
     send_message(u"История " + ("%04d" % (last_card_digits,)))
     appuifw.note(u'Ожидайте ответ в SMS')
     
-def tel_pay():
+def tel_pay_own():
     sum = appuifw.query(u'Сумма в руб.:', 'number')
     if sum is None or sum < 1:
         return
     
     send_message(str(sum))
+    
+def tel_pay():
+    phonenumber = "+7"
+    
+    db = contacts.open()
+    entries = db.find("")
+    names = []
+    for item in entries:
+        names.append(item.title)
+    if names:
+        index = appuifw.selection_list(names, search_field=1)
+        if index:
+            num = entries[index].find('mobile_number')
+            if num:
+                phonenumber = num[0].value
+    
+    phonenumber = appuifw.query(u'Номер телефона:', 'text', phonenumber)
+    if phonenumber is None or phonenumber == '' or phonenumber == "+7":
+        return
+    phonenumber = format_phonenumber(phonenumber)
+    
+    sum = appuifw.query(u'Сумма в руб.:', 'number')
+    if sum is None or sum < 1:
+        return
+    
+    send_message(u"%s %d" % (phonenumber, sum))
+
+    #appuifw.note(u'Подтвердите действие через SMS')
     
 def transfer_to_card_by_phonenumber():
     phonenumber = "+7"
@@ -129,6 +157,7 @@ if is_debug():
     
 while True:
     choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
+               u'Пополнить любой моб. тел.',
                u'Перевод на карту',
                u'Перевод на карту по номеру телефона',
                u'Поддержать автора',
@@ -140,14 +169,16 @@ while True:
     elif index==1:
         last_ops()
     elif index==2:
-        tel_pay()
+        tel_pay_own()
     elif index==3:
-        transfer_to_card()
+        tel_pay()
     elif index==4:
-        transfer_to_card_by_phonenumber()
+        transfer_to_card()
     elif index==5:
-        donate()
+        transfer_to_card_by_phonenumber()
     elif index==6:
+        donate()
+    elif index==7:
         show_about_dlg()
-    elif index==7 or index==None:
+    elif index==8 or index==None:
         break
