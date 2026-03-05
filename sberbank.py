@@ -12,9 +12,10 @@
 #             s.sber.ru/7wZSW
 #             https://www.sberbank.ru/common/img/uploaded/files/pdf/mob_ruk2.pdf
 
-import messaging, appuifw, os.path, contacts
+import messaging, appuifw, os.path, contacts, e32
 
 PROG_VERSION = u'1.1'
+LINE_BREAK = u'\r\n'
 
 def is_debug():
     return os.path.exists("c:/sber.dbg")
@@ -128,11 +129,17 @@ def transfer_to_card():
     appuifw.note(u'Подтвердите действие через SMS')
     
 def show_about_dlg():
-    msg = u'sberbank.py v' + PROG_VERSION + u'\r\n'\
-        + u'Минималистичный клиент Сбербанка для symbian на питоне\r\n'\
-        + u'github.com/artem78/SberbankPySymbian'
-    #appuifw.note(msg)
-    appuifw.query(msg, 'query')
+    txt = appuifw.Text()
+    def_style = txt.style
+    txt.style = appuifw.STYLE_BOLD
+    txt.add(u'sberbank.py v' + PROG_VERSION + LINE_BREAK * 2)
+    txt.style = def_style
+    txt.add( u'Минималистичный клиент Сбербанка для symbian на питоне' + LINE_BREAK * 2)
+    #txt.style = appuifw.STYLE_ITALIC
+    txt.add(u'https://github.com/artem78/SberbankPySymbian' + LINE_BREAK * 2)
+    txt.style = def_style
+    appuifw.app.body = txt
+    e32.ao_sleep(12)
     
 def donate():
     msg = u'Программа оказалась полезной? '\
