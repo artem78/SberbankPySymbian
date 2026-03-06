@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<project name="sberbank.py" default="make_sis" basedir="C:\Program Files\PythonForS60">
+	<property name="version" value="1.2.0"/>
+
+	<target name="make_sis">
+		<exec executable="C:\Python25\python.exe">
+			<arg value="ensymble.py"/>
+			<arg value="py2sis"/>
+			<arg value="--verbose"/>
+			
+			<arg value="--version"/>
+			<arg value="${version}"/>
+			
+			<arg value="--lang"/>
+			<arg value="RU"/>
+			
+			<arg value="--icon"/>
+			<arg value="C:\pys60_projects\SberbankPySymbian\icon.svgt"/>
+			
+			<arg value="--shortcaption"/>
+			<arg value="Сбербанк"/>
+			
+			<arg value="--caption"/>
+			<!--<arg value="Мини клиент сбербанка"/>-->
+			<arg value="Сбербанк"/>
+			
+			<arg value="--icon"/>
+			<arg value="C:\pys60_projects\SberbankPySymbian\icon.svgt"/>
+			
+			<arg value="--vendor"/>
+			<arg value="artem78"/>
+			
+			<arg value="C:\pys60_projects\SberbankPySymbian\sberbank.py"/>
+			<arg value="C:\pys60_projects\SberbankPySymbian\build\"/>
+		</exec>
+	</target>
+</project>
