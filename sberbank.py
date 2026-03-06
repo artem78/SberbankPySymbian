@@ -30,7 +30,7 @@ def format_phonenumber(phonenumber):
     return phonenumber
 
 def send_message(msg):
-    msg = str(msg)
+    msg = unicode(msg)
     if not is_debug():
         messaging.sms_send("900",msg)
     else:
