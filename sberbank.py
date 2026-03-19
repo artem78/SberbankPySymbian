@@ -13,9 +13,17 @@
 #             https://www.sberbank.ru/common/img/uploaded/files/pdf/mob_ruk2.pdf
 
 import messaging, appuifw, os.path, contacts, e32
+from ConfigParser import SafeConfigParser
 
 PROG_VERSION = u'1.3'
 LINE_BREAK = u'\r\n'
+
+cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
+cfg_file = 'c:/data/sberpy.cfg'
+if os.path.exists(cfg_file):
+    cfg.read(cfg_file)
+else:
+    cfg.add_section('main')
 
 def is_debug():
     return os.path.exists("c:/sber.dbg")
@@ -41,15 +49,23 @@ def balans():
     appuifw.note(u'Ожидайте ответ в SMS')
     
 def last_ops():
-    last_card_digits = appuifw.query(u'Последние 4 цифры номера карты:', 'number')
+    last_card_digits = cfg.getint('main', 'last_ops_cardnumber')
+    last_card_digits = appuifw.query(u'Последние 4 цифры номера карты:', 'number',last_card_digits)
     if last_card_digits is None:
         return
     elif last_card_digits == 0 or last_card_digits > 9999:
         appuifw.note(u'Введите 4 цифры!', 'error')
         return
-    
+
     send_message(u"ИСТОРИЯ " + ("%04d" % (last_card_digits,)))
     appuifw.note(u'Ожидайте ответ в SMS')
+
+    # сохраняем в файл , если значение изменено
+    if last_card_digits != cfg.getint('main', 'last_ops_cardnumber'):
+        cfg.set('main', 'last_ops_cardnumber', str(last_card_digits))
+        configfile = open(cfg_file, 'wb')
+        cfg.write(configfile)
+        del configfile
     
 def tel_pay_own():
     sum = appuifw.query(u'Сумма в руб.:', 'number')
