@@ -48,7 +48,7 @@ def last_ops():
         appuifw.note(u'Введите 4 цифры!', 'error')
         return
     
-    send_message(u"История " + ("%04d" % (last_card_digits,)))
+    send_message(u"ИСТОРИЯ " + ("%04d" % (last_card_digits,)))
     appuifw.note(u'Ожидайте ответ в SMS')
     
 def tel_pay_own():
