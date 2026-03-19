@@ -14,7 +14,7 @@
 
 import messaging, appuifw, os.path, contacts, e32
 
-PROG_VERSION = u'1.2'
+PROG_VERSION = u'1.3'
 LINE_BREAK = u'\r\n'
 
 def is_debug():
