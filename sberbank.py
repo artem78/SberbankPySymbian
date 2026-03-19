@@ -30,7 +30,7 @@ def format_phonenumber(phonenumber):
     return phonenumber
 
 def send_message(msg):
-    msg = str(msg)
+    msg = unicode(msg)
     if not is_debug():
         messaging.sms_send("900",msg)
     else:
@@ -44,8 +44,11 @@ def last_ops():
     last_card_digits = appuifw.query(u'Последние 4 цифры номера карты:', 'number')
     if last_card_digits is None:
         return
+    elif last_card_digits == 0 or last_card_digits > 9999:
+        appuifw.note(u'Введите 4 цифры!', 'error')
+        return
     
-    send_message(u"История " + ("%04d" % (last_card_digits,)))
+    send_message(u"ИСТОРИЯ " + ("%04d" % (last_card_digits,)))
     appuifw.note(u'Ожидайте ответ в SMS')
     
 def tel_pay_own():
