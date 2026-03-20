@@ -17,6 +17,7 @@ from ConfigParser import SafeConfigParser
 
 PROG_VERSION = u'1.3'
 LINE_BREAK = u'\r\n'
+CONFIG_FILENAME = 'c:/data/sberpy.cfg'
 
 class Dialogs:
     '''
@@ -83,9 +84,8 @@ class Dialogs:
 
 
 cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
-cfg_file = 'c:/data/sberpy.cfg'
-if os.path.exists(cfg_file):
-    cfg.read(cfg_file)
+if os.path.exists(CONFIG_FILENAME):
+    cfg.read(CONFIG_FILENAME)
 else:
     cfg.add_section('main')
 
@@ -118,7 +118,7 @@ def last_ops():
     # сохраняем в файл , если значение изменено
     if last_card_digits != cfg.getint('main', 'last_ops_cardnumber'):
         cfg.set('main', 'last_ops_cardnumber', str(last_card_digits))
-        configfile = open(cfg_file, 'wb')
+        configfile = open(CONFIG_FILENAME, 'wb')
         cfg.write(configfile)
         del configfile
     
