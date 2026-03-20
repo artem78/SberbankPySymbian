@@ -30,6 +30,9 @@
 			<arg value="--vendor"/>
 			<arg value="artem78"/>
 			
+			<arg value="--caps"/>
+			<arg value="ReadUserData"/>
+			
 			<arg value="C:\pys60_projects\SberbankPySymbian\sberbank.py"/>
 			<arg value="C:\pys60_projects\SberbankPySymbian\build\"/>
 		</exec>
