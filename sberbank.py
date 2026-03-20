@@ -37,6 +37,19 @@ class Dialogs:
 
     @staticmethod
     def ask_phonenumber():
+        def format_phonenumber(phonenumber):
+            '''
+            Приводит номер телефона к десятизначному виду (без +7 или 8 впереди)
+            например: +79160001122 или 89160001122 => 9160001122
+            '''
+            if phonenumber[0:2] == '+7':
+                return phonenumber[2:]
+            elif len(phonenumber) == 11 and phonenumber[0] == '8':
+                return phonenumber[1:]
+            
+            return phonenumber
+        
+        
         phonenumber = "+7"
     
         db = contacts.open()
@@ -75,15 +88,6 @@ else:
 
 def is_debug():
     return os.path.exists("c:/sber.dbg")
-
-def format_phonenumber(phonenumber):
-    # drop leading +7 or 8 ( +79160001122 or 89160001122 to 9160001122 )
-    if phonenumber[0:2] == '+7':
-        return phonenumber[2:]
-    elif len(phonenumber) == 11 and phonenumber[0] == '8':
-        return phonenumber[1:]
-    
-    return phonenumber
 
 def send_message(msg):
     msg = unicode(msg)
