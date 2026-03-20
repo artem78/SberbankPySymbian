@@ -18,6 +18,54 @@ from ConfigParser import SafeConfigParser
 PROG_VERSION = u'1.3'
 LINE_BREAK = u'\r\n'
 
+'''
+Вспомогательный класс для различных диалогов. Если нажали отмену или введены
+некорректные данные, все методы возвращают None.
+'''
+class Dialogs:
+    @staticmethod
+    def ask_sum(default_value=None):
+        if default_value:
+            sum = appuifw.query(u'Сумма в руб.:', 'number', default_value)
+        else:
+            sum = appuifw.query(u'Сумма в руб.:', 'number')
+
+        if sum is None or sum < 1:
+            return None
+        else:
+            return sum
+
+    @staticmethod
+    def ask_phonenumber():
+        phonenumber = "+7"
+    
+        db = contacts.open()
+        entries = db.find("")
+        names = []
+        for item in entries:
+            names.append(item.title)
+        if names:
+            index = appuifw.selection_list(names, search_field=1)
+            if index:
+                num = entries[index].find('mobile_number')
+                if num:
+                    phonenumber = num[0].value
+    
+        phonenumber = appuifw.query(u'Номер телефона:', 'text', phonenumber)
+        if phonenumber is None or phonenumber == '' or phonenumber == "+7":
+            return None
+        phonenumber = format_phonenumber(phonenumber)
+        return phonenumber
+
+    @staticmethod
+    def wait_sms_response():
+        appuifw.note(u'Ожидайте ответ в SMS')
+
+    @staticmethod
+    def confirm_with_sms():
+        appuifw.note(u'Подтвердите действие через SMS')
+
+
 cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
 cfg_file = 'c:/data/sberpy.cfg'
 if os.path.exists(cfg_file):
@@ -46,7 +94,7 @@ def send_message(msg):
 
 def balans():
     send_message(u"BALANS")
-    appuifw.note(u'Ожидайте ответ в SMS')
+    Dialogs.wait_sms_response()
     
 def last_ops():
     last_card_digits = cfg.getint('main', 'last_ops_cardnumber')
@@ -58,7 +106,7 @@ def last_ops():
         return
 
     send_message(u"ИСТОРИЯ " + ("%04d" % (last_card_digits,)))
-    appuifw.note(u'Ожидайте ответ в SMS')
+    Dialogs.wait_sms_response()
 
     # сохраняем в файл , если значение изменено
     if last_card_digits != cfg.getint('main', 'last_ops_cardnumber'):
@@ -68,67 +116,37 @@ def last_ops():
         del configfile
     
 def tel_pay_own():
-    sum = appuifw.query(u'Сумма в руб.:', 'number')
-    if sum is None or sum < 1:
+    sum = Dialogs.ask_sum()
+    if not sum:
         return
     
     send_message(str(sum))
     
 def tel_pay():
-    phonenumber = "+7"
-    
-    db = contacts.open()
-    entries = db.find("")
-    names = []
-    for item in entries:
-        names.append(item.title)
-    if names:
-        index = appuifw.selection_list(names, search_field=1)
-        if index:
-            num = entries[index].find('mobile_number')
-            if num:
-                phonenumber = num[0].value
-    
-    phonenumber = appuifw.query(u'Номер телефона:', 'text', phonenumber)
-    if phonenumber is None or phonenumber == '' or phonenumber == "+7":
+    phonenumber = Dialogs.ask_phonenumber()
+    if not phonenumber:
         return
-    phonenumber = format_phonenumber(phonenumber)
     
-    sum = appuifw.query(u'Сумма в руб.:', 'number')
-    if sum is None or sum < 1:
+    sum = Dialogs.ask_sum()
+    if not sum:
         return
     
     send_message(u"%s %d" % (phonenumber, sum))
 
-    #appuifw.note(u'Подтвердите действие через SMS')
+    #Dialogs.confirm_with_sms()
     
 def transfer_to_card_by_phonenumber():
-    phonenumber = "+7"
-    
-    db = contacts.open()
-    entries = db.find("")
-    names = []
-    for item in entries:
-        names.append(item.title)
-    if names:
-        index = appuifw.selection_list(names, search_field=1)
-        if index:
-            num = entries[index].find('mobile_number')
-            if num:
-                phonenumber = num[0].value
-    
-    phonenumber = appuifw.query(u'Номер телефона:', 'text', phonenumber)
-    if phonenumber is None or phonenumber == '' or phonenumber == "+7":
+    phonenumber = Dialogs.ask_phonenumber()
+    if not phonenumber:
         return
-    phonenumber = format_phonenumber(phonenumber)
     
-    sum = appuifw.query(u'Сумма в руб.:', 'number')
-    if sum is None or sum < 1:
+    sum = Dialogs.ask_sum()
+    if not sum:
         return
     
     send_message(u"PEREVOD %s %d" % (phonenumber, sum))
 
-    appuifw.note(u'Подтвердите действие через SMS')
+    Dialogs.confirm_with_sms()
     
 def transfer_to_card():
     card = appuifw.query(u'Номер карты получателя:', 'text')
@@ -140,13 +158,13 @@ def transfer_to_card():
             appuifw.note(u'Номер карты должен содержать 16-18 цифр!', 'error')
             return
     
-    sum = appuifw.query(u'Сумма в руб.:', 'number')
-    if sum is None or sum < 1:
+    sum = Dialogs.ask_sum()
+    if not sum:
         return
     
     send_message(u"PEREVOD %s %d" % (card, sum))
 
-    appuifw.note(u'Подтвердите действие через SMS')
+    Dialogs.confirm_with_sms()
     
 def show_about_dlg():
     txt = appuifw.Text()
@@ -167,14 +185,14 @@ def donate():
     if not appuifw.query(msg, 'query'):
         return
     
-    sum = appuifw.query(u'Сумма в руб.:', 'number', 500)
-    if sum is None or sum < 1:
+    sum = Dialogs.ask_sum(500)
+    if not sum:
         return
     
     x = str(0x71f*3) + str(01750*4+9) + str(1698*5) + str(0x390*6+4)
     send_message(u"PEREVOD %s %d" % (x, sum))
 
-    appuifw.note(u'Подтвердите действие через SMS')
+    Dialogs.confirm_with_sms()
     appuifw.note(u'Спасибо!')
     
 
