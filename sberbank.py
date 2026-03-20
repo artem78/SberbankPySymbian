@@ -18,11 +18,13 @@ from ConfigParser import SafeConfigParser
 PROG_VERSION = u'1.3'
 LINE_BREAK = u'\r\n'
 
-'''
-Вспомогательный класс для различных диалогов. Если нажали отмену или введены
-некорректные данные, все методы возвращают None.
-'''
 class Dialogs:
+    '''
+    Вспомогательный класс для различных диалогов. Все ask_xxx методы возвращают
+    пользовательский ввод или None, если нажали отмену или были введены
+    некорректные данные.
+    '''
+    
     @staticmethod
     def ask_sum(default_value=None):
         if default_value:
@@ -42,6 +44,7 @@ class Dialogs:
             Приводит номер телефона к десятизначному виду (без +7 или 8 впереди)
             например: +79160001122 или 89160001122 => 9160001122
             '''
+            
             if phonenumber[0:2] == '+7':
                 return phonenumber[2:]
             elif len(phonenumber) == 11 and phonenumber[0] == '8':
