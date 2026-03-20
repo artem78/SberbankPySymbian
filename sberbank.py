@@ -181,6 +181,7 @@ def donate():
 appuifw.app.title = u'Сбербанк'
 if is_debug():
     appuifw.app.title += u' [TEST MODE]'
+appuifw.app.screen='normal'
     
 while True:
     choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
