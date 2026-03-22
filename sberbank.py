@@ -54,19 +54,48 @@ class Dialogs:
             return phonenumber
         
         
+        def get_contact_phonenumbers(contact):
+            res=set()
+            for field in ['mobile_number', 'phone_number']:
+                try:
+                    nums = contact.find(field)
+                except KeyError:
+                    nums = None
+                
+                if nums:
+                    for num in nums:
+                        if num.value:
+                            res.add(num.value)
+            return res
+        
+        
         phonenumber = "+7"
     
         db = contacts.open()
         entries = db.find("")
+
+        # фильтрация и сортировка по алфавиту        
+        #entries.filter(lambda x:(x.title))
+        entries = filter(lambda x:(x.title and len(get_contact_phonenumbers(x))), entries)
+        entries.sort(key=lambda x:(x.title))
+        
         names = []
         for item in entries:
-            names.append(item.title)
+            name = item.title
+            if is_debug():
+                name += ' - ' + ','.join(sorted(list(get_contact_phonenumbers(item))))
+            names.append(name)
+        
         if names:
             index = appuifw.selection_list(names, search_field=1)
-            if index:
-                num = entries[index].find('mobile_number')
-                if num:
-                    phonenumber = num[0].value
+            if index is not None:
+                phonenumbers = sorted(list(get_contact_phonenumbers(entries[index])))
+                if len(phonenumbers) == 1:
+                    phonenumber = phonenumbers[0]
+                elif len(phonenumbers) > 1:
+                    index2 = appuifw.selection_list(phonenumbers)
+                    if index2 is not None:
+                        phonenumber = phonenumbers[index2]
     
         phonenumber = appuifw.query(u'Номер телефона:', 'text', phonenumber)
         if phonenumber is None or phonenumber == '' or phonenumber == "+7":
