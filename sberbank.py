@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
 
-# документация:
-#      python 2.5.4:
-#             https://docs.python.org/release/2.5.4/
-#
-#      pys60:
-#             https://mobilenin.com/pys60/resources/PythonForS60_1_4_1_doc.pdf
-#             https://web.archive.org/web/20150927094303/https://garage.maemo.org/frs/download.php/7490/PyS60_2_0_documentation.pdf
-#
-#      api сбербанка:
-#             s.sber.ru/7wZSW
-#             https://www.sberbank.ru/common/img/uploaded/files/pdf/mob_ruk2.pdf
+'''
+документация:
+      python 2.5.4:
+             https://docs.python.org/release/2.5.4/
+
+      pys60:
+             https://mobilenin.com/pys60/resources/PythonForS60_1_4_1_doc.pdf
+             https://web.archive.org/web/20150927094303/https://garage.maemo.org/frs/download.php/7490/PyS60_2_0_documentation.pdf
+
+      api сбербанка:
+             s.sber.ru/7wZSW
+             https://www.sberbank.ru/common/img/uploaded/files/pdf/mob_ruk2.pdf
+
+
+СМС команды не работают, если содержат кириллицу! Использовать BALANS, PEREVOD, HISTORY и т.д. вместо БАЛАНС, ПЕРЕВОД, ИСТОРИЯ.
+
+'''
 
 import messaging, appuifw, os.path, contacts, e32
 from ConfigParser import SafeConfigParser
@@ -141,7 +147,7 @@ def last_ops():
         appuifw.note(u'Введите 4 цифры!', 'error')
         return
 
-    send_message(u"ИСТОРИЯ " + ("%04d" % (last_card_digits,)))
+    send_message(u"HISTORY " + ("%04d" % (last_card_digits,)))
     Dialogs.wait_sms_response()
 
     # сохраняем в файл , если значение изменено
