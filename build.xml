@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <project name="sberbank.py" default="make_sis" basedir="C:\Program Files\PythonForS60">
-	<property name="version" value="1.4.0"/>
+	<property name="version" value="1.4.1"/>
 
 	<target name="make_sis">
 		<exec executable="C:\Python25\python.exe">
