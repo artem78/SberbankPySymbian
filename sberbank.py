@@ -162,7 +162,7 @@ def tel_pay_own():
     if not sum:
         return
     
-    send_message(str(sum))
+    send_message(sum)
     
 def tel_pay():
     phonenumber = Dialogs.ask_phonenumber()
