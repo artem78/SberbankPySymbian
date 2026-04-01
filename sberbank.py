@@ -18,7 +18,7 @@
 
 '''
 
-import messaging, appuifw, os.path, contacts, e32
+import messaging, appuifw, os.path, contacts, e32, inbox
 from ConfigParser import SafeConfigParser
 
 PROG_VERSION = u'1.4.1'
@@ -146,7 +146,7 @@ def send_message(msg):
 
 def balans():
     send_message(u"BALANS")
-    Dialogs.wait_sms_response()
+    #Dialogs.wait_sms_response()
     
 def last_ops():
     last_card_digits = cfg.getint('main', 'last_ops_cardnumber')
@@ -158,7 +158,7 @@ def last_ops():
         return
 
     send_message(u"HISTORY " + ("%04d" % (last_card_digits,)))
-    Dialogs.wait_sms_response()
+    #Dialogs.wait_sms_response()
 
     # сохраняем в файл , если значение изменено
     if last_card_digits != cfg.getint('main', 'last_ops_cardnumber'):
@@ -247,11 +247,27 @@ def donate():
     Dialogs.confirm_with_sms()
     appuifw.note(u'Спасибо!')
     
+def incoming_sms_recieved(sms_id):
+    e32.ao_sleep(0.1) # без небольшой задержки не получает тело сообщения (по крайней мере в эмуляторе)
+    box = inbox.Inbox()
+    
+    # пропускаем, если смс не от сбербанка
+    if not e32.in_emulator():
+        if box.address(sms_id) != u'900':
+            return
+        
+    msg = box.content(sms_id)
+    #box.set_unread(sms_id, 0) # прочитано
+    #box.delete(sms_id)
+    appuifw.note(msg)
+    
 
 appuifw.app.title = u'Сбербанк'
 if is_debug():
     appuifw.app.title += u' [TEST MODE]'
 appuifw.app.screen='normal'
+box = inbox.Inbox()
+box.bind(incoming_sms_recieved)
     
 while True:
     choices = [u'Баланс карты', u'Последние операции', u'Пополнить свой моб. тел.',
