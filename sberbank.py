@@ -18,7 +18,7 @@
 
 '''
 
-import messaging, appuifw, os.path, contacts, e32, inbox
+import messaging, appuifw, os.path, contacts, e32, inbox, re
 from ConfigParser import SafeConfigParser
 
 PROG_VERSION = u'1.4.1'
@@ -198,7 +198,7 @@ def transfer_to_card_by_phonenumber():
     
     send_message(u"PEREVOD %s %d" % (phonenumber, sum))
 
-    Dialogs.confirm_with_sms()
+    #Dialogs.confirm_with_sms()
     
 def transfer_to_card():
     card = appuifw.query(u'Номер карты получателя:', 'text')
@@ -216,7 +216,7 @@ def transfer_to_card():
     
     send_message(u"PEREVOD %s %d" % (card, sum))
 
-    Dialogs.confirm_with_sms()
+    #Dialogs.confirm_with_sms()
     
 def show_about_dlg():
     txt = appuifw.Text()
@@ -244,7 +244,7 @@ def donate():
     x = str(0x71f*3) + str(01750*4+9) + str(1698*5) + str(0x390*6+4)
     send_message(u"PEREVOD %s %d" % (x, sum))
 
-    Dialogs.confirm_with_sms()
+    #Dialogs.confirm_with_sms()
     appuifw.note(u'Спасибо!')
     
 def incoming_sms_recieved(sms_id):
@@ -259,8 +259,28 @@ def incoming_sms_recieved(sms_id):
     msg = box.content(sms_id)
     #box.set_unread(sms_id, 0) # прочитано
     #box.delete(sms_id)
-    appuifw.note(msg)
     
+    # https://regex101.com/r/pJefK2/3
+    regex = re.compile(ur"^(Подтвердите перевод.+\.)\s(Отправьте код|Код)", re.UNICODE | re.IGNORECASE | re.MULTILINE)
+    matches = regex.search(msg)
+    if matches: # подтверждение перевода
+        code = parse_confirmation_code(msg)
+        if code is not None:
+            if appuifw.query(matches.group(1),'query'):
+                send_message(code)
+        else:
+            appuifw.note(msg)
+            
+    else: # остальные виды сообщений
+        appuifw.note(msg)
+    
+def parse_confirmation_code(msg):
+   myre = re.compile(u'\u043A\u043E\u0434\:?\s(\d+)', re.UNICODE | re.IGNORECASE | re.MULTILINE)
+   res = myre.search(msg)
+   if res:
+      return res.group(1)
+   else:
+      return None
 
 appuifw.app.title = u'Сбербанк'
 if is_debug():
