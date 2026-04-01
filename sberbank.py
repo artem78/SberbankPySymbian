@@ -134,6 +134,16 @@ def send_message(msg):
     else:
         appuifw.note('>> ' + msg)
 
+    # на эмуляторе дополнительно пишем в лог
+    if e32.in_emulator():
+        f = None
+        try:
+            f = open("c:/sber_cmd.log", "a")
+            f.write(msg + '\n')
+            f.flush()
+        finally:
+            del f
+
 def balans():
     send_message(u"BALANS")
     Dialogs.wait_sms_response()
