@@ -231,10 +231,11 @@ def show_about_dlg():
     txt.style = appuifw.STYLE_BOLD
     txt.add(u'sberbank.py v' + PROG_VERSION + LINE_BREAK * 2)
     txt.style = def_style
-    txt.add( u'Минималистичный клиент Сбербанка для symbian на питоне' + LINE_BREAK * 2)
+    txt.add( u'Минималистичный клиент SMS-банка от Сбербанка для SymbianOS на питоне' + LINE_BREAK * 2)
     #txt.style = appuifw.STYLE_ITALIC
     txt.add(u'https://github.com/artem78/SberbankPySymbian' + LINE_BREAK * 2)
     txt.style = def_style
+    txt.add(u'автор: artem78 (megabyte1024@ya.ru)' + LINE_BREAK * 2)
     appuifw.app.body = txt
     e32.ao_sleep(12)
     
