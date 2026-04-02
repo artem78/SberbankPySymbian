@@ -13,16 +13,23 @@
 - Перевод на другую карту
 - Не требует наличие интернета (достаточно сотовой сети для отправки SMS-запросов)
 
+# Зависимости
+
+- Symbian 9.1 - 9.5
+- Python for S60 (PyS60) v2.0.0
+
 # Установка
+Установить на телефон два пакета:
+1) [Python_2.0.0.sis](https://github.com/pymo/pymo/raw/refs/heads/master/symbian/PythonForS60/PyS60Dependencies/Python_2.0.0.sis)
+2) [sberbank-py_vX_X_X.sis](https://github.com/artem78/SberbankPySymbian/releases/latest)
 
-Установить пакет [sberbank-py_vX_X_X.sis](https://github.com/artem78/SberbankPySymbian/releases/latest)
+## Альтернативный вариант установки
 
-## Альтернативный вариант
-
-1) Установить [Python for Symbian (PyS60)](https://sourceforge.net/projects/pys60/files/pys60/1.4.5/) -  PythonForS60_xxx.sis и PythonScriptShell_xxx.SIS ([инструкция](https://www.mobilenin.com/pys60/pys60_installation_resources.php))
-2) Сохранить файл sberbank.py в папку e:/data/python на телефоне
-3) Запустить PythonScriptShell
-4) Options -> Run script и выбрать файл e:sberbank.py
+1) Установить [Python_2.0.0.sis](https://github.com/pymo/pymo/raw/refs/heads/master/symbian/PythonForS60/PyS60Dependencies/Python_2.0.0.sis)
+2) Из [архива](https://web.archive.org/web/20231208115724/https://garage.maemo.org/frs/download.php/7611/PyS60_binaries_certificate_error_fixed.zip) установить соответствующий PythonScriptShell_2.0.0_XXXX.sis
+3) Сохранить файл sberbank.py в папку e:/data/python на телефоне (создать папку, если отстутствует)
+4) Запустить PythonScriptShell
+5) Options -> Run script и выбрать файл e:sberbank.py
 
 # Использование
 
