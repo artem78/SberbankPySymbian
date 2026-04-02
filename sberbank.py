@@ -139,13 +139,15 @@ def send_message(msg):
     else:
         appuifw.note('>> ' + msg)
 
-    # на эмуляторе дополнительно пишем в лог
+    # на эмуляторе почему-то не херачит отправка смс (виснет), поэтому
+    # для тестирования дополнительно пишем отправленные команды в лог-файл
     if e32.in_emulator():
         f = None
         try:
             f = open("c:/sber_cmd.log", "a")
             f.write(msg + '\n')
             f.flush()
+            f.close()
         finally:
             del f
 
