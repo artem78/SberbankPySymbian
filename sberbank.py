@@ -275,12 +275,12 @@ def incoming_sms_recieved(sms_id):
         appuifw.note(msg)
     
 def parse_confirmation_code(msg):
-   myre = re.compile(u'\u043A\u043E\u0434\:?\s(\d+)', re.UNICODE | re.IGNORECASE | re.MULTILINE)
-   res = myre.search(msg)
-   if res:
-      return res.group(1)
-   else:
-      return None
+    myre = re.compile(u'\u043A\u043E\u0434\:?\s(\d+)', re.UNICODE | re.IGNORECASE | re.MULTILINE)
+    res = myre.search(msg)
+    if res:
+        return res.group(1)
+    else:
+        return None
 
 appuifw.app.title = u'Сбербанк'
 if is_debug():
