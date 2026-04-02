@@ -18,7 +18,7 @@
 
 '''
 
-import messaging, appuifw, os.path, contacts, e32, inbox, re
+import messaging, appuifw, os.path, contacts, e32, inbox, re, globalui
 from ConfigParser import SafeConfigParser
 
 PROG_VERSION = u'1.4.1'
@@ -116,6 +116,11 @@ class Dialogs:
     @staticmethod
     def confirm_with_sms():
         appuifw.note(u'Подтвердите действие через SMS')
+        
+    @staticmethod
+    def show_msg(msg, title=u''):
+        #appuifw.note(msg)
+        globalui.global_msg_query(msg, title) # todo: а есть такой же диалог только без кнопки "отмена"?
 
 
 cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
@@ -245,7 +250,7 @@ def donate():
     send_message(u"PEREVOD %s %d" % (x, sum))
 
     #Dialogs.confirm_with_sms()
-    appuifw.note(u'Спасибо!')
+    #appuifw.note(u'Спасибо!')
     
 def incoming_sms_recieved(sms_id):
     e32.ao_sleep(0.1) # без небольшой задержки не получает тело сообщения (по крайней мере в эмуляторе)
@@ -269,10 +274,10 @@ def incoming_sms_recieved(sms_id):
             if appuifw.query(matches.group(1),'query'):
                 send_message(code)
         else:
-            appuifw.note(msg)
+             Dialogs.show_msg(msg, u'Сообщение')
             
     else: # остальные виды сообщений
-        appuifw.note(msg)
+        Dialogs.show_msg(msg, u'Сообщение')
     
 def parse_confirmation_code(msg):
     myre = re.compile(u'\u043A\u043E\u0434\:?\s(\d+)', re.UNICODE | re.IGNORECASE | re.MULTILINE)
