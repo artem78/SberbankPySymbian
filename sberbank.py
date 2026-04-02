@@ -265,6 +265,10 @@ def incoming_sms_recieved(sms_id):
             return
         
     msg = box.content(sms_id)
+    if not msg:
+        appuifw.note(u'Не удалось прочитать сообщение #' + str(sms_id) + '!', 'error')
+        return
+    
     #box.set_unread(sms_id, 0) # прочитано
     #box.delete(sms_id)
     
