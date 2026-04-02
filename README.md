@@ -15,7 +15,7 @@
 
 # Установка
 
-Установить пакет [sberbank_vX_X_X.sis](https://github.com/artem78/SberbankPySymbian/releases/latest)
+Установить пакет [sberbank-py_vX_X_X.sis](https://github.com/artem78/SberbankPySymbian/releases/latest)
 
 ## Альтернативный вариант
 

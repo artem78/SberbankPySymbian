@@ -18,11 +18,11 @@
 			<arg value="C:\pys60_projects\SberbankPySymbian\icon.svgt"/>
 			
 			<arg value="--shortcaption"/>
-			<arg value="Сбербанк"/>
+			<arg value="Сбербанк.py"/>
 			
 			<arg value="--caption"/>
 			<!--<arg value="Мини клиент сбербанка"/>-->
-			<arg value="Сбербанк"/>
+			<arg value="Сбербанк.py"/>
 			
 			<arg value="--icon"/>
 			<arg value="C:\pys60_projects\SberbankPySymbian\icon.svgt"/>
@@ -30,8 +30,17 @@
 			<arg value="--vendor"/>
 			<arg value="artem78"/>
 			
+			<arg value="--appname"/>
+			<arg value="sberbank-py"/>
+			
 			<arg value="C:\pys60_projects\SberbankPySymbian\sberbank.py"/>
 			<arg value="C:\pys60_projects\SberbankPySymbian\build\"/>
 		</exec>
+		
+		<!-- переименование sis -->
+		<move todir="C:\pys60_projects\SberbankPySymbian\build\">
+			<fileset dir="C:\pys60_projects\SberbankPySymbian\build\"/>
+			<mapper type="regexp" from="^(sberbank)(_v\d+_\d+_\d+\.sis)$" to="\1-py\2"/>
+		</move>
 	</target>
 </project>

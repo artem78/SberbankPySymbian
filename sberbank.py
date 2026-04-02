@@ -290,7 +290,7 @@ def parse_confirmation_code(msg):
     else:
         return None
 
-appuifw.app.title = u'Сбербанк'
+appuifw.app.title = u'Сбербанк.py'
 if is_debug():
     appuifw.app.title += u' [TEST MODE]'
 appuifw.app.screen='normal'
