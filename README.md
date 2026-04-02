@@ -2,7 +2,7 @@
 
 Минималистичный СМС-клиент Сбербанка для Symbian (s60v3 - s60v5) на питоне.
 
-![](Snap4244.jpg)
+![](screenshots/Snap4244.jpg) ![](screenshots/Snap4248.jpg) ![](screenshots/Snap4250.jpg)
 
 *( ! ) Для работы требуется подключённый к номеру SMS-банк (http://s.sber.ru/7wZSW).*
 
