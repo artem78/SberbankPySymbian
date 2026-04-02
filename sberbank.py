@@ -269,7 +269,7 @@ def incoming_sms_recieved(sms_id):
         appuifw.note(u'Не удалось прочитать сообщение #' + str(sms_id) + '!', 'error')
         return
     
-    #box.set_unread(sms_id, 0) # прочитано
+    box.set_unread(sms_id, 0) # прочитано
     #box.delete(sms_id)
     
     # https://regex101.com/r/pJefK2/3
