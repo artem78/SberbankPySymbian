@@ -21,7 +21,7 @@
 import messaging, appuifw, os.path, contacts, e32, inbox, re, globalui
 from ConfigParser import SafeConfigParser
 
-PROG_VERSION = u'1.4.1'
+PROG_VERSION = u'1.5'
 LINE_BREAK = u'\r\n'
 CONFIG_FILENAME = 'c:/data/sberpy.cfg'
 
