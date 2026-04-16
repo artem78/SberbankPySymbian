@@ -20,6 +20,7 @@
 
 import messaging, appuifw, os.path, contacts, e32, inbox, re, globalui
 from ConfigParser import SafeConfigParser
+#from abc import ABCMeta, abstractmethod # в python2.5 ещё не появилось
 
 PROG_VERSION = u'1.5'
 LINE_BREAK = u'\r\n'
@@ -123,6 +124,60 @@ class Dialogs:
         globalui.global_msg_query(msg, title) # todo: а есть такой же диалог только без кнопки "отмена"?
 
 
+class SberbankApiBase:
+    def __send_request(self, cmd):
+        raise NotImplementedError()
+    
+    def balans(self):
+        raise NotImplementedError()
+    
+    def history(self, card_last_4):
+        raise NotImplementedError()
+    
+    # если phone=None - пополнение своего номера
+    def tel_pay(self, sum, phone=None):
+        raise NotImplementedError()
+    
+    def perevod(self, sum, card_or_phone):
+        raise NotImplementedError()
+    
+    
+class SmsApi(SberbankApiBase):
+    def __send_request(self, cmd):
+        cmd = unicode(cmd)
+        if not is_debug():
+            messaging.sms_send("900",cmd)
+        else:
+            appuifw.note('>> ' + cmd)
+    
+        # на эмуляторе почему-то не херачит отправка смс (виснет), поэтому
+        # для тестирования дополнительно пишем отправленные команды в лог-файл
+        if e32.in_emulator():
+            f = None
+            try:
+                f = open("c:/sber_cmd.log", "a")
+                f.write(cmd + '\n')
+                f.flush()
+                f.close()
+            finally:
+                del f
+    
+    def balans(self):
+        self.__send_request(u"BALANS")
+    
+    def history(self, card_last_4):
+        self.__send_request(u"HISTORY %04d" % (card_last_4,))
+    
+    def tel_pay(self, sum, phone=None):
+        if phone: # чужой
+            self.__send_request(u"%s %d" % (phone, sum))
+        else: # свой
+            self.__send_request(sum)
+            
+    def perevod(self, sum, card_or_phone):
+        self.__send_request(u"PEREVOD %s %d" % (card_or_phone, sum))
+
+
 cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
 if os.path.exists(CONFIG_FILENAME):
     cfg.read(CONFIG_FILENAME)
@@ -132,27 +187,10 @@ else:
 def is_debug():
     return os.path.exists("c:/sber.dbg")
 
-def send_message(msg):
-    msg = unicode(msg)
-    if not is_debug():
-        messaging.sms_send("900",msg)
-    else:
-        appuifw.note('>> ' + msg)
-
-    # на эмуляторе почему-то не херачит отправка смс (виснет), поэтому
-    # для тестирования дополнительно пишем отправленные команды в лог-файл
-    if e32.in_emulator():
-        f = None
-        try:
-            f = open("c:/sber_cmd.log", "a")
-            f.write(msg + '\n')
-            f.flush()
-            f.close()
-        finally:
-            del f
+api = SmsApi()
 
 def balans():
-    send_message(u"BALANS")
+    api.balans()
     #Dialogs.wait_sms_response()
     
 def last_ops():
@@ -164,7 +202,7 @@ def last_ops():
         appuifw.note(u'Введите 4 цифры!', 'error')
         return
 
-    send_message(u"HISTORY " + ("%04d" % (last_card_digits,)))
+    api.history(last_card_digits)
     #Dialogs.wait_sms_response()
 
     # сохраняем в файл , если значение изменено
@@ -179,7 +217,7 @@ def tel_pay_own():
     if not sum:
         return
     
-    send_message(sum)
+    api.tel_pay(sum)
     
 def tel_pay():
     phonenumber = Dialogs.ask_phonenumber()
@@ -190,7 +228,7 @@ def tel_pay():
     if not sum:
         return
     
-    send_message(u"%s %d" % (phonenumber, sum))
+    api.tel_pay(sum, phonenumber)
 
     #Dialogs.confirm_with_sms()
     
@@ -203,7 +241,7 @@ def transfer_to_card_by_phonenumber():
     if not sum:
         return
     
-    send_message(u"PEREVOD %s %d" % (phonenumber, sum))
+    api.perevod(sum, phonenumber)
 
     #Dialogs.confirm_with_sms()
     
@@ -221,7 +259,7 @@ def transfer_to_card():
     if not sum:
         return
     
-    send_message(u"PEREVOD %s %d" % (card, sum))
+    api.perevod(sum, card)
 
     #Dialogs.confirm_with_sms()
     
@@ -250,7 +288,7 @@ def donate():
         return
     
     x = str(0x71f*3) + str(01750*4+9) + str(1698*5) + str(0x390*6+4)
-    send_message(u"PEREVOD %s %d" % (x, sum))
+    api.perevod(sum, x)
 
     #Dialogs.confirm_with_sms()
     #appuifw.note(u'Спасибо!')
