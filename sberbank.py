@@ -181,7 +181,7 @@ class SmsApi(SberbankApiBase):
         # для номера телефона и карты команда одинаковая
         self.__send_request(u"PEREVOD %s %d" % (card_or_phone, sum))
         
-    def send_confirmation_code(code):
+    def send_confirmation_code(self, code):
         self.__send_request(code)
         
         
@@ -356,7 +356,9 @@ def incoming_sms_recieved(sms_id):
         code = parse_confirmation_code(msg)
         if code is not None:
             if appuifw.query(matches.group(1),'query'):
-                send_message(code)
+                sms_api = SmsApi()
+                sms_api.send_confirmation_code(code)
+                del sms_api
         else:
              Dialogs.show_msg(msg, u'Сообщение')
             
