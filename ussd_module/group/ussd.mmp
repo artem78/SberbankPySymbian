@@ -1,0 +1,23 @@
+TARGETTYPE  dll
+/* From PyS60 1.9.4 onwards, the names of PYDs should be prefixed with 'kf_' 
+   as the new import mechanism expects this. */
+TARGET    kf_ussd.pyd
+
+CAPABILITY ${{DLL_CAPABILITIES}}
+
+NOSTRICTDEF
+DEFFILE   ussd.def
+
+/* If global data is present in the extension module then this macro should be
+ * defined in the mmp file. 
+ */
+EPOCALLOWDLLDATA
+
+SYSTEMINCLUDE    \epoc32\include\python25
+SYSTEMINCLUDE    \epoc32\include\stdapis 
+SYSTEMINCLUDE    \epoc32\include 
+
+LIBRARY     python25.lib
+
+SOURCEPATH  ..\src
+SOURCE    ussd.cpp
