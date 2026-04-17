@@ -390,6 +390,7 @@ begin
       //WriteLn(Format('First line: %s', [s]));
       memo2.Append(DateTimeToStr(Now) + '     ' + cmd);
 
+      {***  SMS команды ***}
       // баланс
       if cmd = 'BALANS' then
       begin
@@ -455,6 +456,55 @@ begin
         freeandnil(re);
         continue;
       end;
+
+
+      { ***  USSD команды *** }
+      // баланс
+      if cmd = '*900*01#' then
+      begin
+        send_balans;
+        FreeAndNil(re);
+        continue;
+      end;
+
+      //истор. оп.
+      re.Expression:='^\*900\*02\*(\d{4})\#$';
+      if re.Exec(cmd) then
+      begin
+        send_vipiska(re.Match[1]);
+        freeandnil(re);
+        continue;
+      end;
+
+      //   опл. тел свой
+      re.Expression:='^\*900\*(\d+)\#$';
+      if re.Exec(cmd) then
+      begin
+        send_phone_popoln_success(strtoint(re.Match[1]));
+        freeandnil(re);
+        continue;
+      end;
+
+      // опл. чуж. тел.
+      re.Expression:='^\*900\*(9\d{9})\*(\d+)\#$';
+      if re.exec(cmd) then
+      begin
+        send_phone_popoln_success(strtoint(re.match[2]), re.Match[1]);
+        freeandnil(re);
+        continue;
+      end;
+
+      // перевод по номеру тел.
+      re.Expression:='^\*900\*12\*(9\d{9})\*(\d+)\#$';
+      if re.exec(cmd) then
+      begin
+        //send_perevod_success(strtoint(re.Match[2]));
+        send_confirmation(StrToInt(re.Match[2]));
+        freeandnil(re);
+        continue;
+      end;
+
+
 
       // команда не опознана
       send_reply('Unknown command!') ;

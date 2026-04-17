@@ -16,7 +16,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <BuildNr Value="10"/>
+      <BuildNr Value="11"/>
     </VersionInfo>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -24,7 +24,7 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="900"/>
+            <Filename Value="900tester"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -63,7 +63,7 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="900"/>
+            <Filename Value="900tester"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -124,7 +124,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="sber_tester"/>
+      <Filename Value="900tester"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
