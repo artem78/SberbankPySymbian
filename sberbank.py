@@ -124,9 +124,22 @@ class Dialogs:
         globalui.global_msg_query(msg, title) # todo: а есть такой же диалог только без кнопки "отмена"?
 
 
-class SberbankApiBase:
+class SberbankApiBase(object):
     def __send_request(self, cmd):
         raise NotImplementedError()
+    
+    # на эмуляторе почему-то не херачит отправка смс (виснет), поэтому
+    # для тестирования дополнительно пишем отправленные команды в лог-файл
+    def _log_cmd_in_emulator(self, cmd):
+        if e32.in_emulator():
+            f = None
+            try:
+                f = open("c:/sber_cmd.log", "a")
+                f.write(cmd + '\n')
+                f.flush()
+                f.close()
+            finally:
+                del f
     
     def balans(self):
         raise NotImplementedError()
@@ -150,17 +163,7 @@ class SmsApi(SberbankApiBase):
         else:
             appuifw.note('>> ' + cmd)
     
-        # на эмуляторе почему-то не херачит отправка смс (виснет), поэтому
-        # для тестирования дополнительно пишем отправленные команды в лог-файл
-        if e32.in_emulator():
-            f = None
-            try:
-                f = open("c:/sber_cmd.log", "a")
-                f.write(cmd + '\n')
-                f.flush()
-                f.close()
-            finally:
-                del f
+        self._log_cmd_in_emulator(cmd)
     
     def balans(self):
         self.__send_request(u"BALANS")
@@ -175,7 +178,42 @@ class SmsApi(SberbankApiBase):
             self.__send_request(sum)
             
     def perevod(self, sum, card_or_phone):
+        # для номера телефона и карты команда одинаковая
         self.__send_request(u"PEREVOD %s %d" % (card_or_phone, sum))
+        
+    def send_confirmation_code(code):
+        self.__send_request(code)
+        
+        
+class UssdApi(SberbankApiBase):          
+    def __send_request(self, *args):
+        cmd = '*'.join(map(str, ('', 900) + args)) + '#'
+        cmd = unicode(cmd)
+        if not is_debug():
+            raise NotImplementedError()
+        else:
+            appuifw.note('>> ' + cmd)
+            
+        self._log_cmd_in_emulator(cmd)
+        
+            
+    def balans(self):
+        self.__send_request('01')
+    
+    def history(self, card_last_4):
+        self.__send_request('02', '%04d' % (card_last_4,))
+    
+    def tel_pay(self, sum, phone=None):
+        if phone: # чужой
+            self.__send_request(phone, sum)
+        else: # свой
+            self.__send_request(sum)
+            
+    def perevod(self, sum, card_or_phone):
+        if len(card_or_phone) == 10: # номер телефона
+            self.__send_request(12, card_or_phone, sum)
+        else: # номер карты
+            raise NotImplementedError() # fixme: не нашёл команду для перевода по номеру карты
 
 
 cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
@@ -187,7 +225,8 @@ else:
 def is_debug():
     return os.path.exists("c:/sber.dbg")
 
-api = SmsApi()
+#api = SmsApi()
+api = UssdApi()
 
 def balans():
     api.balans()
