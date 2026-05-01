@@ -25,7 +25,6 @@ import ussd
 
 PROG_VERSION = u'1.5'
 LINE_BREAK = u'\r\n'
-CONFIG_FILENAME = 'c:/data/sberpy.cfg'
 
 class Dialogs:
     '''
@@ -215,13 +214,49 @@ class UssdApi(SberbankApiBase):
             self.__send_request(12, card_or_phone, sum)
         else: # номер карты
             raise NotImplementedError() # fixme: не нашёл команду для перевода по номеру карты
+    
+        
+class Config(object):
+    __CONFIG_FILENAME = 'c:/data/sberpy.cfg'
+    __MAIN_SECTION = 'main'
+    __DEFAULT_VALUES = {
+        'last_ops_cardnumber': '0000'
+    }
+    
+    __conf_parser = None # инициализация будет в конструкторе
+    
+    def __init__(self):
+        self.__load_from_file()
+        
+    def __load_from_file(self):
+        self.__conf_parser = SafeConfigParser(self.__DEFAULT_VALUES)
+        if os.path.exists(self.__CONFIG_FILENAME):
+            self.__conf_parser.read(self.__CONFIG_FILENAME)
+        else:
+            self.__conf_parser.add_section(self.__MAIN_SECTION)
+    
+    def __save_to_file(self):
+        f = open(self.__CONFIG_FILENAME, 'wb')
+        try:
+            self.__conf_parser.write(f)
+        finally:
+            del f
+            
+    # возвращает всегда string
+    def __get_param(self, param):
+        return self.__conf_parser.get(self.__MAIN_SECTION, param)
+    
+    def __set_param(self, param, value):
+        old_value = self.__conf_parser.get(self.__MAIN_SECTION, param)
+        if str(old_value) != str(value):
+            self.__conf_parser.set(self.__MAIN_SECTION, param, str(value))
+            self.__save_to_file() # пишем в файл только если знчение изменилось
+    
+    last_ops_cardnumber = property(lambda self: self.__get_param('last_ops_cardnumber'),\
+                                   lambda self, v: self.__set_param('last_ops_cardnumber', v))
 
-
-cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
-if os.path.exists(CONFIG_FILENAME):
-    cfg.read(CONFIG_FILENAME)
-else:
-    cfg.add_section('main')
+    
+conf = Config()
 
 def is_debug():
     return os.path.exists("c:/sber.dbg")
@@ -234,7 +269,8 @@ def balans():
     #Dialogs.wait_sms_response()
     
 def last_ops():
-    last_card_digits = cfg.getint('main', 'last_ops_cardnumber')
+    global conf
+    last_card_digits = int(conf.last_ops_cardnumber)
     last_card_digits = appuifw.query(u'Последние 4 цифры номера карты:', 'number',last_card_digits)
     if last_card_digits is None:
         return
@@ -242,15 +278,11 @@ def last_ops():
         appuifw.note(u'Введите 4 цифры!', 'error')
         return
 
+    # обновляем настройки
+    conf.last_ops_cardnumber = last_card_digits
+
     api.history(last_card_digits)
     #Dialogs.wait_sms_response()
-
-    # сохраняем в файл , если значение изменено
-    if last_card_digits != cfg.getint('main', 'last_ops_cardnumber'):
-        cfg.set('main', 'last_ops_cardnumber', str(last_card_digits))
-        configfile = open(CONFIG_FILENAME, 'wb')
-        cfg.write(configfile)
-        del configfile
     
 def tel_pay_own():
     sum = Dialogs.ask_sum()
