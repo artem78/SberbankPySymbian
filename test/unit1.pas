@@ -48,6 +48,8 @@ var
 
 implementation
 
+uses StrUtils;
+
 const
   SDK_C_DRIVE = 'c:\\Symbian\\9.2\\S60_3rd_FP1\\Epoc32\\winscw\\c';
   {$IFOPT D+}
@@ -374,6 +376,7 @@ var
   reader: {tstreamreader} TFileReader;
   re: TRegExpr;
   cmd: string;
+  &type: string;
 begin
 
   if not FileExists(INCOMING_SMS_FILE) then
@@ -388,7 +391,12 @@ begin
       cmd:=Trim(cmd);
       if cmd ='' then continue;
       //WriteLn(Format('First line: %s', [s]));
-      memo2.Append(DateTimeToStr(Now) + '     ' + cmd);
+      &type := IfThen(StartsStr('*900*', cmd), 'USSD', 'СМС ');
+      memo2.Append(
+                     Format('%s     [%s]      %s',
+                            [DateTimeToStr(Now), &type, cmd]
+                           )
+                  );
 
       {***  SMS команды ***}
       // баланс
