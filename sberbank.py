@@ -220,7 +220,8 @@ class Config(object):
     __CONFIG_FILENAME = 'c:/data/sberpy.cfg'
     __MAIN_SECTION = 'main'
     __DEFAULT_VALUES = {
-        'last_ops_cardnumber': '0000'
+        'last_ops_cardnumber': '0000',
+        'api_type': 'ussd'
     }
     
     __conf_parser = None # инициализация будет в конструкторе
@@ -252,8 +253,13 @@ class Config(object):
             self.__conf_parser.set(self.__MAIN_SECTION, param, str(value))
             self.__save_to_file() # пишем в файл только если знчение изменилось
     
+    # свойства
+    
     last_ops_cardnumber = property(lambda self: self.__get_param('last_ops_cardnumber'),\
                                    lambda self, v: self.__set_param('last_ops_cardnumber', v))
+    
+    api_type = property(lambda self: self.__get_param('api_type'),\
+                        lambda self, v: self.__set_param('api_type', v))
 
     
 conf = Config()
@@ -261,8 +267,11 @@ conf = Config()
 def is_debug():
     return os.path.exists("c:/sber.dbg")
 
-#api = SmsApi()
-api = UssdApi()
+api=None
+if conf.api_type == 'ussd':
+    api = UssdApi()
+elif conf.api_type == 'sms':
+    api = SmsApi()
 
 def balans():
     api.balans()
@@ -405,6 +414,33 @@ def parse_confirmation_code(msg):
         return res.group(1)
     else:
         return None
+    
+def open_settings():
+    def on_form_save(form_fields):
+        global conf
+        global api
+        
+        #print(form_fields)
+
+        idx = form_fields[0][2][1]
+        if idx == 0:
+            conf.api_type = 'sms'
+            api = SmsApi()
+        elif idx == 1:
+            conf.api_type = 'ussd'
+            api = UssdApi()
+        
+        return True
+    
+    api_types=[u'SMS', u'USSD']
+    form_fields=[(u'Тип отправляемых команд', 'combo', (
+                    api_types, api_types.index(conf.api_type.upper())
+                   )
+                )]
+    form = appuifw.Form(form_fields, appuifw.FFormEditModeOnly + appuifw.FFormDoubleSpaced)
+    form.save_hook = on_form_save
+    form.execute()
+    
 
 appuifw.app.title = u'Сбербанк.py'
 if is_debug():
@@ -418,6 +454,7 @@ while True:
                u'Пополнить любой моб. тел.',
                u'Перевод на карту',
                u'Перевод на карту по номеру телефона',
+               u'Настройки',
                u'Поддержать автора',
                u'О программе',
                u'Выход']
@@ -435,8 +472,10 @@ while True:
     elif index==5:
         transfer_to_card_by_phonenumber()
     elif index==6:
-        donate()
+        open_settings()
     elif index==7:
+        donate()
+    elif index==8:
         show_about_dlg()
-    elif index==8 or index==None:
+    elif index==9 or index==None:
         break
