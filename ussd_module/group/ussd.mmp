@@ -3,7 +3,8 @@ TARGETTYPE  dll
    as the new import mechanism expects this. */
 TARGET    kf_ussd.pyd
 
-CAPABILITY ${{DLL_CAPABILITIES}}
+/*CAPABILITY ${{DLL_CAPABILITIES}}*/
+CAPABILITY LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment
 
 NOSTRICTDEF
 DEFFILE   ussd.def
