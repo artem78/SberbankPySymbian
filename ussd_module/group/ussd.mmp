@@ -18,7 +18,10 @@ SYSTEMINCLUDE    \epoc32\include\python25
 SYSTEMINCLUDE    \epoc32\include\stdapis 
 SYSTEMINCLUDE    \epoc32\include 
 
-LIBRARY     python25.lib
+LIBRARY     python25.lib euser.lib c32.lib
 
 SOURCEPATH  ..\src
 SOURCE    ussd.cpp
+
+UID 0x1000008d
+DEBUGLIBRARY efsrv.lib
