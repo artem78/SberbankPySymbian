@@ -20,10 +20,11 @@
 
 import messaging, appuifw, os.path, contacts, e32, inbox, re, globalui
 from ConfigParser import SafeConfigParser
+#from abc import ABCMeta, abstractmethod # в python2.5 ещё не появилось
+import ussd
 
 PROG_VERSION = u'1.5'
 LINE_BREAK = u'\r\n'
-CONFIG_FILENAME = 'c:/data/sberpy.cfg'
 
 class Dialogs:
     '''
@@ -123,40 +124,162 @@ class Dialogs:
         globalui.global_msg_query(msg, title) # todo: а есть такой же диалог только без кнопки "отмена"?
 
 
-cfg = SafeConfigParser({'last_ops_cardnumber': '0000'})
-if os.path.exists(CONFIG_FILENAME):
-    cfg.read(CONFIG_FILENAME)
-else:
-    cfg.add_section('main')
+class SberbankApiBase(object):
+    def __send_request(self, cmd):
+        raise NotImplementedError()
+    
+    # на эмуляторе почему-то не херачит отправка смс (виснет), поэтому
+    # для тестирования дополнительно пишем отправленные команды в лог-файл
+    def _log_cmd_in_emulator(self, cmd):
+        if e32.in_emulator():
+            f = None
+            try:
+                f = open("c:/sber_cmd.log", "a")
+                f.write(cmd + '\n')
+                f.flush()
+                f.close()
+            finally:
+                del f
+    
+    def balans(self):
+        raise NotImplementedError()
+    
+    def history(self, card_last_4):
+        raise NotImplementedError()
+    
+    # если phone=None - пополнение своего номера
+    def tel_pay(self, sum, phone=None):
+        raise NotImplementedError()
+    
+    def perevod(self, sum, card_or_phone):
+        raise NotImplementedError()
+    
+    
+class SmsApi(SberbankApiBase):
+    def __send_request(self, cmd):
+        cmd = unicode(cmd)
+        if not is_debug():
+            messaging.sms_send("900",cmd)
+        else:
+            appuifw.note('>> ' + cmd)
+    
+        self._log_cmd_in_emulator(cmd)
+    
+    def balans(self):
+        self.__send_request(u"BALANS")
+    
+    def history(self, card_last_4):
+        self.__send_request(u"HISTORY %04d" % (card_last_4,))
+    
+    def tel_pay(self, sum, phone=None):
+        if phone: # чужой
+            self.__send_request(u"%s %d" % (phone, sum))
+        else: # свой
+            self.__send_request(sum)
+            
+    def perevod(self, sum, card_or_phone):
+        # для номера телефона и карты команда одинаковая
+        self.__send_request(u"PEREVOD %s %d" % (card_or_phone, sum))
+        
+    def send_confirmation_code(self, code):
+        self.__send_request(code)
+        
+        
+class UssdApi(SberbankApiBase):          
+    def __send_request(self, *args):
+        cmd = '*'.join(map(str, ('', 900) + args)) + '#'
+        cmd = unicode(cmd)
+        if not is_debug():
+            ussd.send_command(cmd)
+        else:
+            appuifw.note('>> ' + cmd)
+            
+        self._log_cmd_in_emulator(cmd)
+        
+            
+    def balans(self):
+        self.__send_request('01')
+    
+    def history(self, card_last_4):
+        self.__send_request('02', '%04d' % (card_last_4,))
+    
+    def tel_pay(self, sum, phone=None):
+        if phone: # чужой
+            self.__send_request(phone, sum)
+        else: # свой
+            self.__send_request(sum)
+            
+    def perevod(self, sum, card_or_phone):
+        if len(card_or_phone) == 10: # номер телефона
+            self.__send_request(12, card_or_phone, sum)
+        else: # номер карты
+            raise NotImplementedError() # fixme: не нашёл команду для перевода по номеру карты
+    
+        
+class Config(object):
+    __CONFIG_FILENAME = 'c:/data/sberpy.cfg'
+    __MAIN_SECTION = 'main'
+    __DEFAULT_VALUES = {
+        'last_ops_cardnumber': '0000',
+        'api_type': 'ussd'
+    }
+    
+    __conf_parser = None # инициализация будет в конструкторе
+    
+    def __init__(self):
+        self.__load_from_file()
+        
+    def __load_from_file(self):
+        self.__conf_parser = SafeConfigParser(self.__DEFAULT_VALUES)
+        if os.path.exists(self.__CONFIG_FILENAME):
+            self.__conf_parser.read(self.__CONFIG_FILENAME)
+        else:
+            self.__conf_parser.add_section(self.__MAIN_SECTION)
+    
+    def __save_to_file(self):
+        f = open(self.__CONFIG_FILENAME, 'wb')
+        try:
+            self.__conf_parser.write(f)
+        finally:
+            del f
+            
+    # возвращает всегда string
+    def __get_param(self, param):
+        return self.__conf_parser.get(self.__MAIN_SECTION, param)
+    
+    def __set_param(self, param, value):
+        old_value = self.__conf_parser.get(self.__MAIN_SECTION, param)
+        if str(old_value) != str(value):
+            self.__conf_parser.set(self.__MAIN_SECTION, param, str(value))
+            self.__save_to_file() # пишем в файл только если знчение изменилось
+    
+    # свойства
+    
+    last_ops_cardnumber = property(lambda self: self.__get_param('last_ops_cardnumber'),\
+                                   lambda self, v: self.__set_param('last_ops_cardnumber', v))
+    
+    api_type = property(lambda self: self.__get_param('api_type'),\
+                        lambda self, v: self.__set_param('api_type', v))
+
+    
+conf = Config()
 
 def is_debug():
     return os.path.exists("c:/sber.dbg")
 
-def send_message(msg):
-    msg = unicode(msg)
-    if not is_debug():
-        messaging.sms_send("900",msg)
-    else:
-        appuifw.note('>> ' + msg)
-
-    # на эмуляторе почему-то не херачит отправка смс (виснет), поэтому
-    # для тестирования дополнительно пишем отправленные команды в лог-файл
-    if e32.in_emulator():
-        f = None
-        try:
-            f = open("c:/sber_cmd.log", "a")
-            f.write(msg + '\n')
-            f.flush()
-            f.close()
-        finally:
-            del f
+api=None
+if conf.api_type == 'ussd':
+    api = UssdApi()
+elif conf.api_type == 'sms':
+    api = SmsApi()
 
 def balans():
-    send_message(u"BALANS")
+    api.balans()
     #Dialogs.wait_sms_response()
     
 def last_ops():
-    last_card_digits = cfg.getint('main', 'last_ops_cardnumber')
+    global conf
+    last_card_digits = int(conf.last_ops_cardnumber)
     last_card_digits = appuifw.query(u'Последние 4 цифры номера карты:', 'number',last_card_digits)
     if last_card_digits is None:
         return
@@ -164,22 +287,18 @@ def last_ops():
         appuifw.note(u'Введите 4 цифры!', 'error')
         return
 
-    send_message(u"HISTORY " + ("%04d" % (last_card_digits,)))
-    #Dialogs.wait_sms_response()
+    # обновляем настройки
+    conf.last_ops_cardnumber = last_card_digits
 
-    # сохраняем в файл , если значение изменено
-    if last_card_digits != cfg.getint('main', 'last_ops_cardnumber'):
-        cfg.set('main', 'last_ops_cardnumber', str(last_card_digits))
-        configfile = open(CONFIG_FILENAME, 'wb')
-        cfg.write(configfile)
-        del configfile
+    api.history(last_card_digits)
+    #Dialogs.wait_sms_response()
     
 def tel_pay_own():
     sum = Dialogs.ask_sum()
     if not sum:
         return
     
-    send_message(sum)
+    api.tel_pay(sum)
     
 def tel_pay():
     phonenumber = Dialogs.ask_phonenumber()
@@ -190,7 +309,7 @@ def tel_pay():
     if not sum:
         return
     
-    send_message(u"%s %d" % (phonenumber, sum))
+    api.tel_pay(sum, phonenumber)
 
     #Dialogs.confirm_with_sms()
     
@@ -203,7 +322,7 @@ def transfer_to_card_by_phonenumber():
     if not sum:
         return
     
-    send_message(u"PEREVOD %s %d" % (phonenumber, sum))
+    api.perevod(sum, phonenumber)
 
     #Dialogs.confirm_with_sms()
     
@@ -221,7 +340,7 @@ def transfer_to_card():
     if not sum:
         return
     
-    send_message(u"PEREVOD %s %d" % (card, sum))
+    api.perevod(sum, card)
 
     #Dialogs.confirm_with_sms()
     
@@ -250,7 +369,7 @@ def donate():
         return
     
     x = str(0x71f*3) + str(01750*4+9) + str(1698*5) + str(0x390*6+4)
-    send_message(u"PEREVOD %s %d" % (x, sum))
+    api.perevod(sum, x)
 
     #Dialogs.confirm_with_sms()
     #appuifw.note(u'Спасибо!')
@@ -265,7 +384,11 @@ def incoming_sms_recieved(sms_id):
             return
         
     msg = box.content(sms_id)
-    #box.set_unread(sms_id, 0) # прочитано
+    if not msg:
+        appuifw.note(u'Не удалось прочитать сообщение #' + str(sms_id) + '!', 'error')
+        return
+    
+    box.set_unread(sms_id, 0) # прочитано
     #box.delete(sms_id)
     
     # https://regex101.com/r/pJefK2/3
@@ -275,7 +398,9 @@ def incoming_sms_recieved(sms_id):
         code = parse_confirmation_code(msg)
         if code is not None:
             if appuifw.query(matches.group(1),'query'):
-                send_message(code)
+                sms_api = SmsApi()
+                sms_api.send_confirmation_code(code)
+                del sms_api
         else:
              Dialogs.show_msg(msg, u'Сообщение')
             
@@ -289,6 +414,33 @@ def parse_confirmation_code(msg):
         return res.group(1)
     else:
         return None
+    
+def open_settings():
+    def on_form_save(form_fields):
+        global conf
+        global api
+        
+        #print(form_fields)
+
+        idx = form_fields[0][2][1]
+        if idx == 0:
+            conf.api_type = 'sms'
+            api = SmsApi()
+        elif idx == 1:
+            conf.api_type = 'ussd'
+            api = UssdApi()
+        
+        return True
+    
+    api_types=[u'SMS', u'USSD']
+    form_fields=[(u'Тип отправляемых команд', 'combo', (
+                    api_types, api_types.index(conf.api_type.upper())
+                   )
+                )]
+    form = appuifw.Form(form_fields, appuifw.FFormEditModeOnly + appuifw.FFormDoubleSpaced)
+    form.save_hook = on_form_save
+    form.execute()
+    
 
 appuifw.app.title = u'Сбербанк.py'
 if is_debug():
@@ -302,6 +454,7 @@ while True:
                u'Пополнить любой моб. тел.',
                u'Перевод на карту',
                u'Перевод на карту по номеру телефона',
+               u'Настройки',
                u'Поддержать автора',
                u'О программе',
                u'Выход']
@@ -319,8 +472,10 @@ while True:
     elif index==5:
         transfer_to_card_by_phonenumber()
     elif index==6:
-        donate()
+        open_settings()
     elif index==7:
+        donate()
+    elif index==8:
         show_about_dlg()
-    elif index==8 or index==None:
+    elif index==9 or index==None:
         break
