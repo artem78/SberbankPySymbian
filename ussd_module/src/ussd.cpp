@@ -10,6 +10,7 @@
 // docs:
 //	https://docs.python.org/release/2.5.4/ext/intro.html
 //	https://people.csail.mit.edu/rudolph/PythonExtension.pdf
+//	https://web.archive.org/web/20090826092013/https://wiki.forum.nokia.com/index.php/Sending_USSD_commands
 
 
 void SendUssdCmdL(const TDesC8 &aCommand)
@@ -54,14 +55,15 @@ void SendUssdCmdL(const TDesC8 &aCommand)
 	//console->Printf(_L("server started\n"));
 	
 	RCommServ server;	
-	server.Connect();
-	TInt ret=server.LoadCommModule(KCsyName());
-	User::LeaveIfError(ret);
+	User::LeaveIfError(server.Connect());
+	CleanupClosePushL(server);
+	
+	User::LeaveIfError(server.LoadCommModule(KCsyName()));
 	//console->Printf(_L("module loaded\n"));
 	
 	RComm commPort;
-	ret=commPort.Open(server,KDataPort,/*ECommExclusive*/ ECommShared);
-	User::LeaveIfError(ret);
+	User::LeaveIfError(commPort.Open(server,KDataPort,/*ECommExclusive*/ ECommShared));
+	CleanupClosePushL(commPort);
 	//console->Printf(_L("port opened\n"));
 	
 	TRequestStatus status;
@@ -85,11 +87,8 @@ void SendUssdCmdL(const TDesC8 &aCommand)
 	buf16.Copy(buf);
 	//console->Printf(_L("response: \"%S\""), &buf16);
 	
-	commPort.Close();
-	server.Close();
-	
-	
-	
+	CleanupStack::PopAndDestroy(2, &server); // commPort, server
+
 	//console->Printf(_L("MainL end\n"));
 	}
 

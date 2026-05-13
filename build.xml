@@ -1,8 +1,10 @@
 <?xml version="1.0" ?>
 <project name="sberbank.py" default="make_sis" basedir="C:\Program Files\PythonForS60">
 	<property name="version" value="1.5.0"/>
+	<property name="project_dir" value="C:\pys60_projects\SberbankPySymbian\" />
+	<property name="pys60_module_repo" value="C:/Program Files/PythonForS60/module-repo/dev-modules/" />
 
-	<target name="make_sis">
+	<target name="make_sis" depends="copy_pyd_to_modules_repo">
 		<exec executable="C:\Python25\python.exe">
 			<arg value="ensymble.py"/>
 			<arg value="py2sis"/>
@@ -33,6 +35,13 @@
 			<arg value="--appname"/>
 			<arg value="sberbank-py"/>
 			
+			<arg value="--extra-modules"/>
+			<arg value="ussd"/>
+			
+			<arg value="--caps" /> <!-- todo: действительно ли все опции необходимы? -->
+			<!--<arg value="LocalServices+NetworkServices+ReadUserData+WriteUserData+UserEnvironment+CommDD"/>-->
+			<arg value="CommDD+LocalServices+NetworkControl+NetworkServices+ReadDeviceData+ReadUserData+SwEvent+UserEnvironment+WriteDeviceData+WriteUserData" />
+			
 			<arg value="C:\pys60_projects\SberbankPySymbian\sberbank.py"/>
 			<arg value="C:\pys60_projects\SberbankPySymbian\build\"/>
 		</exec>
@@ -42,5 +51,19 @@
 			<fileset dir="C:\pys60_projects\SberbankPySymbian\build\"/>
 			<mapper type="regexp" from="^(sberbank)(_v\d+_\d+_\d+\.sis)$" to="\1-py\2"/>
 		</move>
+	</target>
+	
+	<!--
+		добавление строки ['C:\\Symbian\\9.2\\S60_3rd_FP1\\Epoc32\\release\\gcce\\urel']
+		в C:\Program Files\PythonForS60\module-repo\dev-modules\module_search_path.cfg
+		почему-то не ебошит
+	-->
+	<target name="copy_pyd_to_modules_repo">
+		<mkdir dir="${pys60_module_repo}/ussd"/>
+		<copy todir="${pys60_module_repo}/ussd" failonerror="true" overwrite="true">
+			<!--<filename name="${basedir}/ussd_module/bin-release/ussd/kf_ussd.pyd"/>-->
+			<fileset dir="C:/Symbian/9.2/S60_3rd_FP1/Epoc32/release/gcce/urel/" includes="kf_ussd.pyd"/><!-- после компиляции -->
+			<fileset dir="${project_dir}/ussd_module/bin-release/ussd/" includes="module_config.cfg"/>
+		</copy>
 	</target>
 </project>
