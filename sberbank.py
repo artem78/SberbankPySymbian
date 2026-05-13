@@ -23,7 +23,7 @@ from ConfigParser import SafeConfigParser
 #from abc import ABCMeta, abstractmethod # в python2.5 ещё не появилось
 import ussd
 
-PROG_VERSION = u'1.5'
+PROG_VERSION = u'1.6'
 LINE_BREAK = u'\r\n'
 
 class Dialogs:

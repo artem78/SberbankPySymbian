@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <project name="sberbank.py" default="make_sis" basedir="C:\Program Files\PythonForS60">
-	<property name="version" value="1.5.0"/>
+	<property name="version" value="1.6.0"/>
 	<property name="project_dir" value="C:\pys60_projects\SberbankPySymbian\" />
 	<property name="pys60_module_repo" value="C:/Program Files/PythonForS60/module-repo/dev-modules/" />
 
