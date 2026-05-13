@@ -190,7 +190,7 @@ class UssdApi(SberbankApiBase):
         cmd = '*'.join(map(str, ('', 900) + args)) + '#'
         cmd = unicode(cmd)
         if not is_debug():
-            ussd.send_сommand(cmd)
+            ussd.send_command(cmd)
         else:
             appuifw.note('>> ' + cmd)
             
