@@ -29,8 +29,9 @@
 1) Установить [Python_2.0.0.sis](https://github.com/pymo/pymo/raw/refs/heads/master/symbian/PythonForS60/PyS60Dependencies/Python_2.0.0.sis)
 2) Из [архива](https://web.archive.org/web/20231208115724/https://garage.maemo.org/frs/download.php/7611/PyS60_binaries_certificate_error_fixed.zip) установить соответствующий PythonScriptShell_2.0.0_XXXX.sis
 3) Сохранить файл sberbank.py в папку e:/data/python на телефоне (создать папку, если отсутствует)
-4) Запустить PythonScriptShell
-5) Options -> Run script и выбрать файл e:sberbank.py
+4) Скопировать модуль kf_ussd.pyd из папки /ussd_module/bin-release/ussd/ в e:/sys/bin (todo: проверить) на телефоне
+5) Запустить PythonScriptShell
+6) Options -> Run script и выбрать файл e:sberbank.py
 
 # Использование
 
